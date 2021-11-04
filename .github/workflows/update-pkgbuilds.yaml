@@ -1,0 +1,44 @@
+---
+name: update-pkgbuilds
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 7 * * *"
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    strategy:
+      matrix:
+        package: [tfswitch, tfswitch-bin]
+    steps:
+      - name: Update system and install additional packages
+        run: pacman -Syyu --noconfirm git jq pacman-contrib
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Update package ${{ matrix.package }}
+        run: |
+          if [ ! -d "./${{ matrix.package }}" ]; then
+            >&2 echo "Package $1 does not exist"
+            exit 1
+          fi
+
+          if [ -x "./.github/scripts/${{ matrix.package }}.sh" ]; then
+            ./.github/scripts/${{ matrix.package }}.sh
+          else
+            >&2 echo "./.github/scripts/${{ matrix.package }}.sh not found or not executable"
+            exit 2
+          fi
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          branch: update-pkgbuild/${{ matrix.package }}
+          delete-branch: true
+          commit-message: "chore(${{ matrix.package }}): bump version to ${{ env.LATEST_VERSION }}"
+          title: "chore(${{ matrix.package }}): bump version to ${{ env.LATEST_VERSION }}"
+          body: ""
