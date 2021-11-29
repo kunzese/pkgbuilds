@@ -23,7 +23,7 @@ jobs:
       - name: Update package ${{ matrix.package }}
         run: |
           if [ ! -d "./${{ matrix.package }}" ]; then
-            >&2 echo "Package $1 does not exist"
+            >&2 echo "Package ${{ matrix.package }} does not exist"
             exit 1
           fi
 
@@ -39,6 +39,8 @@ jobs:
         with:
           branch: update-pkgbuild/${{ matrix.package }}
           delete-branch: true
-          commit-message: "chore(${{ matrix.package }}): bump version to ${{ env.LATEST_VERSION }}"
+          author: ${{ secrets.GIT_USER_NAME }} <${{ secrets.GIT_USER_EMAIL }}>
+          committer: ${{ secrets.GIT_USER_NAME }} <${{ secrets.GIT_USER_EMAIL }}>
           title: "chore(${{ matrix.package }}): bump version to ${{ env.LATEST_VERSION }}"
+          commit-message: "chore(${{ matrix.package }}): bump version to ${{ env.LATEST_VERSION }}"
           body: ""
