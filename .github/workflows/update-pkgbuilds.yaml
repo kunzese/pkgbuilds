@@ -18,7 +18,7 @@ jobs:
         run: pacman -Syyu --noconfirm git jq pacman-contrib
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Update package ${{ matrix.package }}
         run: |
