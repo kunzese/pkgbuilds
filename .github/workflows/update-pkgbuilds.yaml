@@ -4,15 +4,29 @@ name: update-pkgbuilds
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 7 * * *"
+    - cron: "0 7,13 * * *"
 
 jobs:
+  assemble_matrices:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Assemble matrices
+        id: assemble_matrices
+        run: |
+          echo "::set-output name=package_matrix::$(python -c "import os, json; print(json.dumps([f for f in os.listdir('.') if os.path.isdir(f) and os.path.isfile(os.path.join(f, 'PKGBUILD'))]))")"
+    outputs:
+      package_matrix: ${{ steps.assemble_matrices.outputs.package_matrix }}
+
   update:
     runs-on: ubuntu-latest
     container: archlinux:base-devel
+    needs: assemble_matrices
     strategy:
       matrix:
-        package: [tfswitch, tfswitch-bin]
+        package: ${{ fromJson(needs.assemble_matrices.outputs.package_matrix) }}
     steps:
       - name: Update system and install additional packages
         run: pacman -Syyu --noconfirm git jq pacman-contrib
