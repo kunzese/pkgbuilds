@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Assemble matrices
         id: assemble_matrices
@@ -32,7 +32,7 @@ jobs:
         run: pacman -Syyu --noconfirm git jq pacman-contrib
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Adding working directory to the git global config as a safe directory
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
