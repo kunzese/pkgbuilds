@@ -52,7 +52,7 @@ jobs:
           fi
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v6
         with:
           branch: update-pkgbuild/${{ matrix.package }}
           delete-branch: true
