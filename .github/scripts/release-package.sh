@@ -14,9 +14,10 @@ pushd "$TEMPDIR"
 
 if [ -n "$(git status --porcelain)" ]; then
   # Uncommitted changes
-  git commit -a -m "chore($PACKAGE): release version $pkgver-$pkgrel"
+  git add {PKGBUILD,.SRCINFO}
+  git commit -m "chore($PACKAGE): release version $pkgver-$pkgrel"
   git push
-else 
+else
   # Working directory clean
   echo "No changes detected"
 fi
