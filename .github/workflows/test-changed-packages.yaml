@@ -1,0 +1,50 @@
+---
+name: test-changed-packages
+
+on:
+  pull_request:
+    paths:
+      - "**/PKGBUILD"
+      - "**/.SRCINFO"
+
+jobs:
+  get-changed-packages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Compile matrices
+        id: matrices
+        run: echo "changed_packages=$(git diff --name-only HEAD^ '*/PKGBUILD' '*/.SRCINFO' | xargs -l dirname | sort | uniq | jq -Rcn '[inputs]')" >> $GITHUB_OUTPUT
+    outputs:
+      changed_packages: ${{ steps.matrices.outputs.changed_packages }}
+
+  test:
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    needs: get-changed-packages
+    strategy:
+      matrix:
+        package: ${{ fromJson(needs.get-changed-packages.outputs.changed_packages) }}
+    steps:
+      - name: Update system and install additional packages
+        run: pacman -Syyu --noconfirm git jq pacman-contrib
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build and install package ${{ matrix.package }}
+        working-directory: ${{ matrix.package }}
+        run: env EUID=1 makepkg -sic --noconfirm
+
+      - name: Verify package ${{ matrix.package }}
+        working-directory: ${{ matrix.package }}
+        run: |
+          if [ -x "../.github/scripts/verify-${{ matrix.package }}.sh" ]; then
+            ../.github/scripts/verify-${{ matrix.package }}.sh
+          else
+            echo "Package ${{ matrix.package }} has no verify script"
+          fi
