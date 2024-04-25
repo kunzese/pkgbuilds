@@ -36,6 +36,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Adding working directory to the git global config as a safe directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Build and install package ${{ matrix.package }}
         working-directory: ${{ matrix.package }}
         run: env EUID=1 makepkg -sic --noconfirm
