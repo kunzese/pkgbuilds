@@ -3,7 +3,7 @@
 set -eo pipefail
 
 PACKAGES=(tfswitch tfswitch-bin)
-LATEST_VERSION=$(curl -s https://api.github.com/repos/warrensbox/terraform-switcher/releases/latest | jq -r '.tag_name')
+LATEST_VERSION=$(curl -s https://api.github.com/repos/warrensbox/terraform-switcher/releases/latest | jq -r '.tag_name' | sed 's/^v//')
 
 for package in "${PACKAGES[@]}"; do
   pushd "$package" > /dev/null
