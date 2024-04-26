@@ -26,6 +26,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
+          token: ${{ secrets.PAT_PKGBUILDS }}
           branch: update-pkgbuild/cloudsdk
           delete-branch: true
           author: ${{ secrets.GIT_USER_NAME }} <${{ secrets.GIT_USER_EMAIL }}>
