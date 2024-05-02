@@ -33,6 +33,15 @@ jobs:
       - name: Update system and install additional packages
         run: pacman -Syyu --noconfirm git jq pacman-contrib
 
+      - name: Set up prerequisites
+        working-directory: ${{ matrix.package }}
+        run: |
+          if [ -x "../.github/scripts/prerequisites-${{ matrix.package }}.sh" ]; then
+            ../.github/scripts/prerequisites-${{ matrix.package }}.sh
+          else
+            echo "Package ${{ matrix.package }} has no prerequisites"
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -41,7 +50,7 @@ jobs:
 
       - name: Build and install package ${{ matrix.package }}
         working-directory: ${{ matrix.package }}
-        run: env EUID=1 makepkg -sic --noconfirm
+        run: env EUID=1 makepkg -si --noconfirm
 
       - name: Verify package ${{ matrix.package }}
         working-directory: ${{ matrix.package }}
