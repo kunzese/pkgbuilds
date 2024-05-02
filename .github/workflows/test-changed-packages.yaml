@@ -36,12 +36,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up prerequisites
+        working-directory: ${{ matrix.package }}
+        run: |
+          if [ -x "../.github/scripts/prerequisites-${{ matrix.package }}.sh" ]; then
+            ../.github/scripts/prerequisites-${{ matrix.package }}.sh
+          else
+            echo "Package ${{ matrix.package }} has no prerequisites"
+          fi
+
+
       - name: Adding working directory to the git global config as a safe directory
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Build and install package ${{ matrix.package }}
         working-directory: ${{ matrix.package }}
-        run: env EUID=1 makepkg -sic --noconfirm
+        run: env EUID=1 makepkg -si --noconfirm
 
       - name: Verify package ${{ matrix.package }}
         working-directory: ${{ matrix.package }}
