@@ -7,7 +7,7 @@ TEMPDIR="$(mktemp -d)"
 
 source "./$PACKAGE/PKGBUILD"
 
-git clone "ssh://aur@aur.archlinux.org/$1.git" "$TEMPDIR"
+git clone "ssh://aur@aur.archlinux.org/$PACKAGE.git" "$TEMPDIR"
 cp ./"$PACKAGE"/{PKGBUILD,.SRCINFO} "$TEMPDIR"
 
 pushd "$TEMPDIR"

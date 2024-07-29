@@ -45,7 +45,6 @@ jobs:
             echo "Package ${{ matrix.package }} has no prerequisites"
           fi
 
-
       - name: Adding working directory to the git global config as a safe directory
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
