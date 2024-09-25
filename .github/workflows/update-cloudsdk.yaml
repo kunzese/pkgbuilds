@@ -12,7 +12,7 @@ jobs:
     container: archlinux:base-devel
     steps:
       - name: Update system and install additional packages
-        run: pacman -Syyu --noconfirm git jq pacman-contrib
+        run: pacman -Syyu --noconfirm git jq pacman-contrib github-cli
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -37,6 +37,7 @@ jobs:
           body: ""
 
       - name: Enable auto-merge
+        if: ${{ steps.cpr.outputs.pull-request-url }}
         run: gh pr merge --auto --rebase "${{ steps.cpr.outputs.pull-request-url }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
