@@ -24,6 +24,7 @@ jobs:
         run: ./.github/scripts/update-tfswitch.sh
 
       - name: Create Pull Request
+        id: cpr
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.PAT_PKGBUILDS }}
@@ -34,3 +35,8 @@ jobs:
           title: "chore(tfswitch): bump version to ${{ env.LATEST_VERSION }}"
           commit-message: "chore(tfswitch): bump version to ${{ env.LATEST_VERSION }}"
           body: ""
+
+      - name: Enable auto-merge
+        run: gh pr merge --auto --rebase "${{ steps.cpr.outputs.pull-request-url }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
