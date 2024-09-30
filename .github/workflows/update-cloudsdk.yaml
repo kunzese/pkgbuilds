@@ -40,4 +40,4 @@ jobs:
         if: ${{ steps.cpr.outputs.pull-request-url }}
         run: gh pr merge --auto --rebase "${{ steps.cpr.outputs.pull-request-url }}"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_PKGBUILDS }}
