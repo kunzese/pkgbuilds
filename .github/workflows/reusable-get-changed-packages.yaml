@@ -20,11 +20,14 @@ jobs:
       - name: Get changed files
         id: changed-files
         run: |
+          DELIMITER=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "files<<$DELIMITER" >> $GITHUB_OUTPUT
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo "files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})" >> $GITHUB_OUTPUT
+            git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} >> $GITHUB_OUTPUT
           else
-            echo "files=$(git diff --name-only HEAD^ HEAD)" >> $GITHUB_OUTPUT
+            git diff --name-only HEAD^ HEAD >> $GITHUB_OUTPUT
           fi
+          echo "$DELIMITER" >> $GITHUB_OUTPUT
 
       - name: Compile matrices
         id: matrices
