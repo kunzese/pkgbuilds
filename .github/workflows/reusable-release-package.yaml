@@ -1,0 +1,47 @@
+--- 
+name: Release Package
+
+on:
+  workflow_call:
+    inputs:
+      package_name:
+        description: 'Package name'
+        required: true
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up SSH
+        env:
+          AUR_KNOWN_HOSTS: ${{ secrets.AUR_KNOWN_HOSTS }}
+          AUR_PRIVATE_KEY: ${{ secrets.AUR_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo -e "Host aur.archlinux.org\n  IdentityFile ~/.ssh/aur\n  User aur" > ~/.ssh/config
+          echo "$AUR_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          echo "$AUR_PRIVATE_KEY" > ~/.ssh/aur
+          chmod 0600 ~/.ssh/aur
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "${{ secrets.GIT_USER_NAME }}"
+          git config --global user.email "${{ secrets.GIT_USER_EMAIL }}"
+
+      - name: Release package ${{ inputs.package_name }}
+        run: |
+          if [ ! -d "./${{ inputs.package_name }}" ]; then
+            >&2 echo "Package ${{ inputs.package_name }} does not exist"
+            exit 1
+          fi
+
+          if [ -x "./.github/scripts/release-package.sh" ]; then
+            ./.github/scripts/release-package.sh "${{ inputs.package_name }}"
+          else
+            >&2 echo "./.github/scripts/release-package.sh not found or not executable"
+            exit 2
+          fi

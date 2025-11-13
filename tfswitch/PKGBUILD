@@ -19,6 +19,11 @@ build() {
     -o "$pkgname" .
 }
 
+check() {
+  cd "terraform-switcher-$pkgver"
+  go test ./...
+}
+
 package() {
   cd "terraform-switcher-$pkgver"
   install -Dm755 "$pkgname" "$pkgdir/usr/bin/$pkgname"

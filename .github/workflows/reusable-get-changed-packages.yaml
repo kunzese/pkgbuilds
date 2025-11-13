@@ -1,0 +1,33 @@
+---
+name: Get Changed Packages
+
+on:
+  workflow_call:
+    outputs:
+      changed_packages:
+        description: "A JSON array of changed packages"
+        value: ${{ jobs.get-changed-packages.outputs.changed_packages }}
+
+jobs:
+  get-changed-packages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for all branches and tags
+
+      - name: Get changed files
+        id: changed-files
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})" >> $GITHUB_OUTPUT
+          else
+            echo "files=$(git diff --name-only HEAD^ HEAD)" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Compile matrices
+        id: matrices
+        run: echo "changed_packages=$(echo "${{ steps.changed-files.outputs.files }}" | grep -E '(PKGBUILD|\.SRCINFO)$' | xargs -l dirname | sort | uniq | jq -Rcn '[inputs]')" >> $GITHUB_OUTPUT
+    outputs:
+      changed_packages: ${{ steps.matrices.outputs.changed_packages }}

@@ -2,8 +2,11 @@
 
 set -eo pipefail
 
-PACKAGES=(google-cloud-cli-firestore-emulator)
-LATEST_VERSION=$(curl -s https://dl.google.com/dl/cloudsdk/channels/rapid/components-2.json | jq -r '.version')
+VERSION_CMD="$1"
+shift
+PACKAGES=("$@")
+
+LATEST_VERSION=$(eval "$VERSION_CMD")
 
 for package in "${PACKAGES[@]}"; do
   pushd "$package" > /dev/null

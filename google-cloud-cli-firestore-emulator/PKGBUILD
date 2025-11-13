@@ -15,22 +15,18 @@ sha256sums=('30a53491a23a93e30ff17a719275e4eb8ff7c42b35ba0c48b262354374f9252c')
 package() {
     cd "$srcdir/google-cloud-sdk"  # Does not match naming convention google-cloud-cli
 
+    local _install_base="${pkgdir}/opt/google-cloud-cli"
+    local _component_path="platform/cloud-firestore-emulator"
+
     # Install component manifest and snapshot
     manifests=(
         "cloud-firestore-emulator.manifest"
         "cloud-firestore-emulator.snapshot.json"
     )
     for item in ${manifests[@]}; do
-        install -Dm644 \
-            ".install/${item}" \
-            "${pkgdir}/opt/google-cloud-cli/.install/${item}"
+        install -Dm644 ".install/${item}" "${_install_base}/.install/${item}"
     done
 
-    install -Dm755 \
-        "platform/cloud-firestore-emulator/cloud_firestore_emulator" \
-        "${pkgdir}/opt/google-cloud-cli/platform/cloud-firestore-emulator/cloud_firestore_emulator"
-
-    install -Dm644 \
-        "platform/cloud-firestore-emulator/cloud-firestore-emulator.jar" \
-        "${pkgdir}/opt/google-cloud-cli/platform/cloud-firestore-emulator/cloud-firestore-emulator.jar"
+    install -Dm755 "${_component_path}/cloud_firestore_emulator" "${_install_base}/${_component_path}/cloud_firestore_emulator"
+    install -Dm644 "${_component_path}/cloud-firestore-emulator.jar" "${_install_base}/${_component_path}/cloud-firestore-emulator.jar"
 }

@@ -1,5 +1,5 @@
 ---
-name: update-tfswitch
+name: update-packages
 
 on:
   workflow_dispatch:
@@ -9,11 +9,18 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
-    container: archlinux:base-devel
-    steps:
-      - name: Update system and install additional packages
-        run: pacman -Syyu --noconfirm git jq pacman-contrib github-cli
+    container: ghcr.io/kunzese/pkgbuilds:latest
+    strategy:
+      matrix:
+        package-group:
+          - name: cloudsdk
+            packages: "google-cloud-cli-firestore-emulator"
+            version_cmd: "curl -s https://dl.google.com/dl/cloudsdk/channels/rapid/components-2.json | jq -r '.version'"
+          - name: tfswitch
+            packages: "tfswitch tfswitch-bin"
+            version_cmd: "curl -s https://api.github.com/repos/warrensbox/terraform-switcher/releases/latest | jq -r '.tag_name' | sed 's/^v//'"
 
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -21,19 +28,19 @@ jobs:
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Update packages
-        run: ./.github/scripts/update-tfswitch.sh
+        run: ./.github/scripts/update-package.sh "${{ matrix.package-group.version_cmd }}" ${{ matrix.package-group.packages }}
 
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.PAT_PKGBUILDS }}
-          branch: update-pkgbuild/tfswitch
+          branch: update-pkgbuild/${{ matrix.package-group.name }}
           delete-branch: true
           author: ${{ secrets.GIT_USER_NAME }} <${{ secrets.GIT_USER_EMAIL }}>
           committer: ${{ secrets.GIT_USER_NAME }} <${{ secrets.GIT_USER_EMAIL }}>
-          title: "chore(tfswitch): bump version to ${{ env.LATEST_VERSION }}"
-          commit-message: "chore(tfswitch): bump version to ${{ env.LATEST_VERSION }}"
+          title: "chore(${{ matrix.package-group.name }}): bump version to ${{ env.LATEST_VERSION }}"
+          commit-message: "chore(${{ matrix.package-group.name }}): bump version to ${{ env.LATEST_VERSION }}"
           body: ""
 
       - name: Enable auto-merge
