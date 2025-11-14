@@ -20,7 +20,7 @@ jobs:
         package: ${{ fromJson(needs.get-changed-packages.outputs.changed_packages) }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Adding working directory to the git global config as a safe directory
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
