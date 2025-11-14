@@ -27,24 +27,38 @@ jobs:
       - name: Adding working directory to the git global config as a safe directory
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
+      - name: Set up Git
+        run: |
+          git config --global user.name "${{ secrets.GIT_USER_NAME }}"
+          git config --global user.email "${{ secrets.GIT_USER_EMAIL }}"
+
       - name: Update packages
         run: ./.github/scripts/update-package.sh "${{ matrix.package-group.version_cmd }}" ${{ matrix.package-group.packages }}
 
-      - name: Create Pull Request
-        id: cpr
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.PAT_PKGBUILDS }}
-          branch: update-pkgbuild/${{ matrix.package-group.name }}
-          delete-branch: true
-          author: ${{ secrets.GIT_USER_NAME }} <${{ secrets.GIT_USER_EMAIL }}>
-          committer: ${{ secrets.GIT_USER_NAME }} <${{ secrets.GIT_USER_EMAIL }}>
-          title: "chore(${{ matrix.package-group.name }}): bump version to ${{ env.LATEST_VERSION }}"
-          commit-message: "chore(${{ matrix.package-group.name }}): bump version to ${{ env.LATEST_VERSION }}"
-          body: ""
+      - name: Create Pull Request and enable auto-merge
+        run: |
+          BRANCH_NAME="update-pkgbuild/${{ matrix.package-group.name }}"
+          PR_TITLE="chore(${{ matrix.package-group.name }}): bump version to ${{ env.LATEST_VERSION }}"
 
-      - name: Enable auto-merge
-        if: ${{ steps.cpr.outputs.pull-request-url }}
-        run: gh pr merge --auto --rebase "${{ steps.cpr.outputs.pull-request-url }}"
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git switch -C "$BRANCH_NAME"
+          git add -A
+          git commit -m "$PR_TITLE"
+          git push -f origin "$BRANCH_NAME"
+
+          if PR_URL=$(gh pr view "$BRANCH_NAME" --json url --jq -r .url 2>/dev/null); then
+            gh pr edit "$BRANCH_NAME" --title "$PR_TITLE"
+            echo "Updated existing PR: $PR_URL"
+          else
+            PR_URL=$(gh pr create --base master --head "$BRANCH_NAME" --title "$PR_TITLE")
+            echo "Created new PR: $PR_URL"
+          fi
+
+          gh pr merge --auto --rebase "$BRANCH_NAME"
+          echo "Auto-merge enabled for: $PR_URL"
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_PKGBUILDS }}
