@@ -8,22 +8,20 @@ on:
       - "**/.SRCINFO"
 
 jobs:
-  get-changed-packages:
-    uses: ./.github/workflows/reusable-get-changed-packages.yaml
-
   test-google-cloud-cli-firestore-emulator:
     runs-on: ubuntu-latest
     container: ghcr.io/kunzese/pkgbuilds:latest
-    needs: get-changed-packages
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Check if package changed
         id: check
         run: |
-          CHANGED_PACKAGES='${{ needs.get-changed-packages.outputs.changed_packages }}'
-          if echo "$CHANGED_PACKAGES" | jq -e '.[] | select(. == "google-cloud-cli-firestore-emulator")' > /dev/null; then
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
+          if echo "$CHANGED_FILES" | grep -q "^google-cloud-cli-firestore-emulator/"; then
             echo "changed=true" >> $GITHUB_OUTPUT
           else
             echo "changed=false" >> $GITHUB_OUTPUT
@@ -46,16 +44,17 @@ jobs:
   test-tfswitch:
     runs-on: ubuntu-latest
     container: ghcr.io/kunzese/pkgbuilds:latest
-    needs: get-changed-packages
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Check if package changed
         id: check
         run: |
-          CHANGED_PACKAGES='${{ needs.get-changed-packages.outputs.changed_packages }}'
-          if echo "$CHANGED_PACKAGES" | jq -e '.[] | select(. == "tfswitch")' > /dev/null; then
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
+          if echo "$CHANGED_FILES" | grep -q "^tfswitch/"; then
             echo "changed=true" >> $GITHUB_OUTPUT
           else
             echo "changed=false" >> $GITHUB_OUTPUT
@@ -78,16 +77,17 @@ jobs:
   test-tfswitch-bin:
     runs-on: ubuntu-latest
     container: ghcr.io/kunzese/pkgbuilds:latest
-    needs: get-changed-packages
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Check if package changed
         id: check
         run: |
-          CHANGED_PACKAGES='${{ needs.get-changed-packages.outputs.changed_packages }}'
-          if echo "$CHANGED_PACKAGES" | jq -e '.[] | select(. == "tfswitch-bin")' > /dev/null; then
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
+          if echo "$CHANGED_FILES" | grep -q "^tfswitch-bin/"; then
             echo "changed=true" >> $GITHUB_OUTPUT
           else
             echo "changed=false" >> $GITHUB_OUTPUT
