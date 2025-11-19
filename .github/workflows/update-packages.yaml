@@ -1,5 +1,5 @@
 ---
-name: update-packages
+name: update
 
 on:
   workflow_dispatch:

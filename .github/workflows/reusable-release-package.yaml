@@ -1,5 +1,5 @@
 --- 
-name: Release Package
+name: release-package
 
 on:
   workflow_call:
