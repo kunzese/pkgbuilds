@@ -11,37 +11,98 @@ jobs:
   get-changed-packages:
     uses: ./.github/workflows/reusable-get-changed-packages.yaml
 
-  test:
+  test-google-cloud-cli-firestore-emulator:
     runs-on: ubuntu-latest
     container: ghcr.io/kunzese/pkgbuilds:latest
     needs: get-changed-packages
-    strategy:
-      matrix:
-        package: ${{ fromJson(needs.get-changed-packages.outputs.changed_packages) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Adding working directory to the git global config as a safe directory
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
-      - name: Build and install package ${{ matrix.package }}
-        working-directory: ${{ matrix.package }}
-        run: env EUID=1 makepkg -si --noconfirm
-
-      - name: Run namcap on PKGBUILD
-        working-directory: ${{ matrix.package }}
-        run: namcap PKGBUILD
-
-      - name: Run namcap on package
-        working-directory: ${{ matrix.package }}
-        run: namcap *.pkg.tar.zst
-
-      - name: Verify package ${{ matrix.package }}
-        working-directory: ${{ matrix.package }}
+      - name: Check if package changed
+        id: check
         run: |
-          if [ -x "../.github/scripts/verify-${{ matrix.package }}.sh" ]; then
-            ../.github/scripts/verify-${{ matrix.package }}.sh
+          CHANGED_PACKAGES='${{ needs.get-changed-packages.outputs.changed_packages }}'
+          if echo "$CHANGED_PACKAGES" | jq -e '.[] | select(. == "google-cloud-cli-firestore-emulator")' > /dev/null; then
+            echo "changed=true" >> $GITHUB_OUTPUT
           else
-            echo "Package ${{ matrix.package }} has no verify script"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Test package
+        if: steps.check.outputs.changed == 'true'
+        working-directory: google-cloud-cli-firestore-emulator
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          env EUID=1 makepkg -si --noconfirm
+          namcap PKGBUILD
+          namcap *.pkg.tar.zst
+          if [ -x "../.github/scripts/verify-google-cloud-cli-firestore-emulator.sh" ]; then
+            ../.github/scripts/verify-google-cloud-cli-firestore-emulator.sh
+          else
+            echo "Package google-cloud-cli-firestore-emulator has no verify script"
+          fi
+
+  test-tfswitch:
+    runs-on: ubuntu-latest
+    container: ghcr.io/kunzese/pkgbuilds:latest
+    needs: get-changed-packages
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Check if package changed
+        id: check
+        run: |
+          CHANGED_PACKAGES='${{ needs.get-changed-packages.outputs.changed_packages }}'
+          if echo "$CHANGED_PACKAGES" | jq -e '.[] | select(. == "tfswitch")' > /dev/null; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Test package
+        if: steps.check.outputs.changed == 'true'
+        working-directory: tfswitch
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          env EUID=1 makepkg -si --noconfirm
+          namcap PKGBUILD
+          namcap *.pkg.tar.zst
+          if [ -x "../.github/scripts/verify-tfswitch.sh" ]; then
+            ../.github/scripts/verify-tfswitch.sh
+          else
+            echo "Package tfswitch has no verify script"
+          fi
+
+  test-tfswitch-bin:
+    runs-on: ubuntu-latest
+    container: ghcr.io/kunzese/pkgbuilds:latest
+    needs: get-changed-packages
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Check if package changed
+        id: check
+        run: |
+          CHANGED_PACKAGES='${{ needs.get-changed-packages.outputs.changed_packages }}'
+          if echo "$CHANGED_PACKAGES" | jq -e '.[] | select(. == "tfswitch-bin")' > /dev/null; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Test package
+        if: steps.check.outputs.changed == 'true'
+        working-directory: tfswitch-bin
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          env EUID=1 makepkg -si --noconfirm
+          namcap PKGBUILD
+          namcap *.pkg.tar.zst
+          if [ -x "../.github/scripts/verify-tfswitch-bin.sh" ]; then
+            ../.github/scripts/verify-tfswitch-bin.sh
+          else
+            echo "Package tfswitch-bin has no verify script"
           fi
