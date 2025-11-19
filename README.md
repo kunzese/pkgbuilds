@@ -1,17 +1,29 @@
-# PKGBUILDs for [Arch User Repository](https://aur.archlinux.org)
+# PKGBUILDs for Arch User Repository
 
-## [google-cloud-cli-firestore-emulator](https://aur.archlinux.org/packages/google-cloud-cli-firestore-emulator)
+[![update](https://github.com/kunzese/pkgbuilds/actions/workflows/update-packages.yaml/badge.svg)](https://github.com/kunzese/pkgbuilds/actions/workflows/update-packages.yaml)
+[![test](https://github.com/kunzese/pkgbuilds/actions/workflows/test-changed-packages.yaml/badge.svg)](https://github.com/kunzese/pkgbuilds/actions/workflows/test-changed-packages.yaml)
+[![release](https://github.com/kunzese/pkgbuilds/actions/workflows/release-packages.yaml/badge.svg)](https://github.com/kunzese/pkgbuilds/actions/workflows/release-packages.yaml)
 
-[![update-cloudsdk](https://github.com/kunzese/pkgbuilds/actions/workflows/update-cloudsdk.yaml/badge.svg)](https://github.com/kunzese/pkgbuilds/actions/workflows/update-cloudsdk.yaml)
+Automated AUR package maintenance with CI/CD workflows for building, testing, and publishing packages.
+
+## Packages
+
+### [google-cloud-cli-firestore-emulator](https://aur.archlinux.org/packages/google-cloud-cli-firestore-emulator)
 
 A google-cloud-cli component that provides a local, in-memory emulator for Firestore.
 
-<https://cloud.google.com/firestore/docs/emulator>
+- **Upstream**: <https://cloud.google.com/firestore/docs/emulator>
 
-## [tfswitch](https://aur.archlinux.org/packages/tfswitch) / [tfswitch-bin](https://aur.archlinux.org/packages/tfswitch-bin)
+### [tfswitch](https://aur.archlinux.org/packages/tfswitch) / [tfswitch-bin](https://aur.archlinux.org/packages/tfswitch-bin)
 
-[![update-tfswitch](https://github.com/kunzese/pkgbuilds/actions/workflows/update-tfswitch.yaml/badge.svg)](https://github.com/kunzese/pkgbuilds/actions/workflows/update-tfswitch.yaml)
+A command line tool to switch between different versions of Terraform.
 
-A command line tool to switch between different versions of terraform.
+- **Upstream**: <https://github.com/warrensbox/terraform-switcher>
+- **Variants**: Source build (`tfswitch`) and binary distribution (`tfswitch-bin`)
 
-<https://github.com/warrensbox/terraform-switcher>
+## Features
+
+- **Automated Updates**: Daily version checks and automatic pull requests
+- **Continuous Testing**: Automated builds and namcap validation on PRs
+- **Automatic Publishing**: Packages are released to AUR on merge to master
+- **Docker-based CI**: Consistent build environment using containerized workflows
