@@ -54,7 +54,7 @@ jobs:
             gh pr edit "$BRANCH_NAME" --title "$PR_TITLE"
             echo "Updated existing PR: $PR_URL"
           else
-            PR_URL=$(gh pr create --base master --head "$BRANCH_NAME" --title "$PR_TITLE")
+            PR_URL=$(gh pr create --base master --head "$BRANCH_NAME" --title "$PR_TITLE" --body "Automated version bump to ${{ env.LATEST_VERSION }}")
             echo "Created new PR: $PR_URL"
           fi
 
