@@ -1,0 +1,38 @@
+---
+name: release-packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_name:
+        description: 'Package name (leave empty to release all changed packages)'
+        required: false
+  push:
+    branches:
+      - master
+    paths:
+      - "**/PKGBUILD"
+      - "**/.SRCINFO"
+
+jobs:
+  get-changed-packages:
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/reusable-get-changed-packages.yaml
+
+  release-changed:
+    if: github.event_name == 'push'
+    needs: get-changed-packages
+    strategy:
+      matrix:
+        package: ${{ fromJson(needs.get-changed-packages.outputs.changed_packages) }}
+    uses: ./.github/workflows/reusable-release-package.yaml
+    with:
+      package_name: ${{ matrix.package }}
+    secrets: inherit
+
+  release-manual:
+    if: github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/reusable-release-package.yaml
+    with:
+      package_name: ${{ github.event.inputs.package_name }}
+    secrets: inherit
