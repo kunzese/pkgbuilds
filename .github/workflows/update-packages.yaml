@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Adding working directory to the git global config as a safe directory
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
