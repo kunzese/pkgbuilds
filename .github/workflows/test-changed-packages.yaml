@@ -18,6 +18,11 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
 
+      - name: Fetch base commit
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git fetch origin ${{ github.event.pull_request.base.sha }}
+
       - name: Check if package changed
         id: check
         run: |
@@ -32,7 +37,6 @@ jobs:
         if: steps.check.outputs.changed == 'true'
         working-directory: google-cloud-cli-firestore-emulator
         run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           env EUID=1 makepkg -si --noconfirm
           namcap PKGBUILD
           namcap *.pkg.tar.zst
@@ -52,6 +56,11 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
 
+      - name: Fetch base commit
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git fetch origin ${{ github.event.pull_request.base.sha }}
+
       - name: Check if package changed
         id: check
         run: |
@@ -66,7 +75,6 @@ jobs:
         if: steps.check.outputs.changed == 'true'
         working-directory: tfswitch
         run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           env EUID=1 makepkg -si --noconfirm
           namcap PKGBUILD
           namcap *.pkg.tar.zst
@@ -86,6 +94,11 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
 
+      - name: Fetch base commit
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git fetch origin ${{ github.event.pull_request.base.sha }}
+
       - name: Check if package changed
         id: check
         run: |
@@ -100,7 +113,6 @@ jobs:
         if: steps.check.outputs.changed == 'true'
         working-directory: tfswitch-bin
         run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           env EUID=1 makepkg -si --noconfirm
           namcap PKGBUILD
           namcap *.pkg.tar.zst
