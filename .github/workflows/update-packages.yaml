@@ -50,8 +50,8 @@ jobs:
           git commit -m "$PR_TITLE"
           git push -f origin "$BRANCH_NAME"
 
-          if PR_URL=$(gh pr view "$BRANCH_NAME" --json url --jq -r .url 2>/dev/null); then
-            gh pr edit "$BRANCH_NAME" --title "$PR_TITLE"
+          if PR_URL=$(gh pr view "$BRANCH_NAME" --json url -q '.url' 2>/dev/null); then
+            gh pr edit "$BRANCH_NAME" --title "$PR_TITLE" --body "Automated version bump to ${{ env.LATEST_VERSION }}"
             echo "Updated existing PR: $PR_URL"
           else
             PR_URL=$(gh pr create --base master --head "$BRANCH_NAME" --title "$PR_TITLE" --body "Automated version bump to ${{ env.LATEST_VERSION }}")
